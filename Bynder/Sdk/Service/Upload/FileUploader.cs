@@ -138,7 +138,9 @@ namespace Bynder.Sdk.Service.Upload
                     Copyright = query.Copyright,
                     IsPublic = query.IsPublic,
                     MetapropertyOptions = query.MetapropertyOptions,
-                    PublishedDate = query.PublishedDate
+                    PublishedDate = query.PublishedDate,
+                    Audit = query.Audit,
+                    AccessRequestId = query.AccessRequestId
                 }).ConfigureAwait(false);
             }
             else
