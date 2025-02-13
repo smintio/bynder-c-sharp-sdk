@@ -25,15 +25,16 @@ namespace Bynder.Sdk.Model
         /// Property asset types assigned to media
         /// </summary>
         [JsonProperty("property_assettype")]
-        [JsonIgnore]
+        public IList<string> PropertyAssetType { get; set; }
+        // [JsonIgnore]
         // [Obsolete("Use PropertyOptionsDictionary?[\"property_assettype\"] instead")]
-        public IList<string> PropertyAssetType
+        /* public IList<string> PropertyAssetType
         {
             get
             {
                 return PropertyOptionsDictionary?["property_assettype"].Values().Select(v => v.ToString()).ToList() ?? null;
             }
-        }
+        } */
 
         /// <summary>
         /// Active focus point in the original media item, defined
