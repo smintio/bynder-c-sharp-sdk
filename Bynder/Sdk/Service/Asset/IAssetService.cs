@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
 using Bynder.Sdk.Model;
 using Bynder.Sdk.Query.Asset;
@@ -109,13 +110,24 @@ namespace Bynder.Sdk.Service.Asset
         Task<IList<MetapropertyOption>> GetMetapropertyOptionsAsync(MetapropertyOptionSearchQuery query);
 
         /// <summary>
-        /// Uploads a file async.
+        /// Uploads a file based on a filepath in the query
         /// </summary>
         /// <param name="query">Information to upload a file</param>
         /// <returns>Task representing the upload</returns>
         /// <exception cref="HttpRequestException">Can be thrown when requests to server can't be completed or HTTP code returned by server is an error</exception>
         /// <exception cref="BynderUploadException">Can be thrown when upload does not finish within expected time</exception>
         Task<SaveMediaResponse> UploadFileAsync(UploadQuery query);
+
+        /// <summary>
+        /// Uploads a file as a stream
+        /// </summary>
+        /// <param name="fileStream">Stream representing the file to be uploaded</param>
+        /// <param name="query">Information to upload a file</param>
+        /// <returns>Task representing the upload</returns>
+        /// <exception cref="HttpRequestException">Can be thrown when requests to server can't be completed or HTTP code returned by server is an error</exception>
+        /// <exception cref="BynderUploadException">Can be thrown when upload does not finish within expected time</exception>
+
+        Task<SaveMediaResponse> UploadFileAsync(Stream fileStream, UploadQuery query);
 
         /// <summary>
         /// Modifies a media
@@ -142,6 +154,15 @@ namespace Bynder.Sdk.Service.Asset
         Task<Status> AddTagToMediaAsync(AddTagToMediaQuery query);
 
         /// <summary>
+        /// Remove tags from asset
+        /// </summary>
+        /// <param name="tagId">Id of the tag to remove</param>
+        /// <param name="assetIds">Ids of the assets from which the tag should be removed</param>
+        /// <returns>Task representing the upload</returns>
+        /// <exception cref="HttpRequestException">Can be thrown when requests to server can't be completed or HTTP code returned by server is an error</exception>
+        Task<Status> RemoveTagFromMediaAsync(string tagId, IEnumerable<string> assetIds);
+
+        /// <summary>
         /// Create an asset usage operation to track usage of Bynder assets in third party applications.
         /// </summary>
         /// <param name="query">Information about the asset usage</param>
@@ -156,6 +177,22 @@ namespace Bynder.Sdk.Service.Asset
         /// <returns>Task representing the operation</returns>
         /// <exception cref="HttpRequestException">Can be thrown when requests to server can't be completed or HTTP code returned by server is an error</exception>
         Task<Status> DeleteAssetUsage(AssetUsageQuery query);
+
+        /// <summary>
+        /// Get a full list of Bynder assets including the total number of matching results
+        /// </summary>
+        /// <param name="query">Information to correctly filter/paginate media</param>
+        /// <returns>Task representing the full result, including the total number of matches</returns>
+        /// <exception cref="HttpRequestException">Can be thrown when requests to server can't be completed or HTTP code returned by server is an error</exception>
+        /// <remarks>This method can be used to implement pagination in your app. The MediaFullResult that gets returned has a Total.Count property, which contains the total number of matching assets, not just the number of assets in the current result page</remarks>
+        Task<MediaFullResult> GetMediaFullResultAsync(MediaQuery query);
+
+        /// Delete an asset 
+        /// </summary>
+        /// <param name="assetId">Id of the asset to remove</param>
+        /// <returns>Task representing the operation</returns>
+        /// <exception cref="HttpRequestException">Can be thrown when requests to server can't be completed or HTTP code returned by server is an error</exception>
+        Task<Status> DeleteAssetAsync(string assetId);
 
     }
 }

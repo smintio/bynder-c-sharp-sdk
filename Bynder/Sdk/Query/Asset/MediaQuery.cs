@@ -86,14 +86,18 @@ namespace Bynder.Sdk.Query.Asset
         public IList<string> PropertyOptionId { get; set; } = new List<string>();
 
         /// <summary>
-        /// Properties values by key
-        /// Examples
-        /// key: property_NAME value: Amsterdam
-        /// or
-        /// key: property_NAME value: 00000000-0000-0000-0000000000000000
-        /// key property_SomethingElse value: 00000000-0000-0000-0000000000000001
+        /// Metaproperties
+        /// Look for assets by specifying meta properties and values by name
+        /// e.g. City: Amsterdam
         /// </summary>
-        [ApiField("property_", Converter = typeof(MetapropertyOptionsConverter))]
-        public IDictionary<string, IList<string>> PropertiesByKey { get; set; }
+        /// <remarks>
+        /// - Use the database names of the metaproperties, not the IDs
+        /// - If the metaproperty is of type single/multiple select, the values should be the database names of the option(s)
+        /// - If the metaproperty is of type text, the values refer to the text itself
+        /// </remarks>
+        /// 
+        [ApiField("property_", Converter = typeof(MetapropertyOptionsConverter), OmitSeparator = true)]
+        public IDictionary<string, IList<string>> MetaProperties { get; set; }
+
     }
 }

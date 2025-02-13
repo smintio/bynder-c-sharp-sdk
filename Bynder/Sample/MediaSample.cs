@@ -32,6 +32,7 @@ namespace Bynder.Sample
 
         private async Task RunMediaSampleAsync()
         {
+
             // Get a list of media with limit 10
             Console.WriteLine("Listing media with limit of 10: ");
             var mediaList = await _bynderClient.GetAssetService().GetMediaListAsync(new MediaQuery{Limit=10});
@@ -39,6 +40,10 @@ namespace Bynder.Sample
                 Console.WriteLine($"Media ID: {media.Id}");
                 Console.WriteLine($"Media Name: {media.Name}");
             }
+
+            // Get ths same list as a full result
+            var mediaFullResult = await _bynderClient.GetAssetService().GetMediaFullResultAsync(new MediaQuery { Limit = 10 });
+            Console.WriteLine($"Retrieving full result based on same query, total number of matching assets is {mediaFullResult.Total.Count}");
 
             // Get the media info
             Console.WriteLine("Enter the media ID to get the media info for: ");
@@ -50,6 +55,22 @@ namespace Bynder.Sample
             Console.WriteLine($"ID: {mediaInfo.Id}");
             Console.WriteLine($"Name: {mediaInfo.Name}");
             Console.WriteLine($"Brand Id: {mediaInfo.BrandId}");
+            if (mediaInfo.PropertyAssetType == null)
+            {
+                Console.WriteLine($"No asset type");
+            }
+            else
+            {
+                Console.WriteLine($"Asset type: {string.Join(',', mediaInfo.PropertyAssetType)}");
+            }
+            if (mediaInfo.PropertyOptionsDictionary != null)
+            {
+                foreach (var propertyKey in mediaInfo.PropertyOptionsDictionary.Keys)
+                {
+                    Console.Write($"Property option in dictionary: {propertyKey}: {mediaInfo.PropertyOptionsDictionary[propertyKey].ToString()}");
+                }
+            }
+
 
             // Get the media download URL
             Console.WriteLine("Enter the media ID to get the media download URL for: ");
@@ -70,6 +91,13 @@ namespace Bynder.Sample
                 Description = updatedDescription
             };
             await _bynderClient.GetAssetService().ModifyMediaAsync(modifyMediaQuery);
+
+
+            // Modify a media with a new description
+            Console.WriteLine("Enter the media ID to delete: ");
+            var mediaIdForDelete = Console.ReadLine();
+            await _bynderClient.GetAssetService().DeleteAssetAsync(mediaIdForDelete);
+
         }
             
         private async Task AuthenticateWithOAuth2Async(bool useClientCredentials)
