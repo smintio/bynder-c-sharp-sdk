@@ -359,7 +359,7 @@ namespace Bynder.Sdk.Service.Asset
                 Page = query.Page,
                 PropertyOptionId = query.PropertyOptionId,
                 SubBrandId = query.SubBrandId,
-                Type = query.Type,
+                Types = query.Types,
                 Total = true
             };
         }
