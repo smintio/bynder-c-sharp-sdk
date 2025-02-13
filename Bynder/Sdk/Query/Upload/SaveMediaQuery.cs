@@ -43,6 +43,31 @@ namespace Bynder.Sdk.Query.Upload
         [ApiField("tags", Converter = typeof(ListConverter))]
         public IList<string> Tags { get; set; }
 
+
+        /// <summary>
+        /// Description of the media
+        /// </summary>
+        [ApiField("description")]
+        public string Description { get; set; }
+
+        /// <summary>
+        /// Published date of the media
+        /// </summary>
+        [ApiField("ISOPublicationDate")]
+        public string PublishedDate { get; set; }
+
+        /// <summary>
+        /// Copyright information for the media
+        /// </summary>
+        [ApiField("copyright")]
+        public string Copyright { get; set; }
+
+        /// <summary>
+        /// Indicates if the media is public
+        /// </summary>
+        [ApiField("isPublic")]
+        public bool IsPublic { get; set; }
+
         /// <summary>
         /// Metaproperty options to set on the asset.
         /// </summary>
