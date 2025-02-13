@@ -11,6 +11,8 @@ using Bynder.Sdk.Api.RequestSender;
 using Bynder.Sdk.Model;
 using Bynder.Sdk.Query.Asset;
 using Bynder.Sdk.Query.Upload;
+using System.IO;
+using System.Web;
 
 namespace Bynder.Sdk.Service.Asset
 {
@@ -209,6 +211,18 @@ namespace Bynder.Sdk.Service.Asset
         /// <summary>
         /// Check <see cref="IAssetService"/> for more information
         /// </summary>
+        /// <param name="fileStream">Check <see cref="IAssetService"/> for more information</param>
+        /// <param name="query">Check <see cref="IAssetService"/> for more information</param>
+        /// <returns>Check <see cref="IAssetService"/> for more information</returns>
+        public async Task<SaveMediaResponse> UploadFileAsync(Stream fileStream, UploadQuery query)
+        {
+            return await _uploader.UploadFileAsync(fileStream, query).ConfigureAwait(false);
+        }
+
+
+        /// <summary>
+        /// Check <see cref="IAssetService"/> for more information
+        /// </summary>
         /// <param name="query">Check <see cref="IAssetService"/> for more information</param>
         /// <returns>Check <see cref="IAssetService"/> for more information</returns>
         public async Task<Media> GetMediaInfoAsync(MediaInformationQuery query)
@@ -242,11 +256,17 @@ namespace Bynder.Sdk.Service.Asset
         /// <returns>Check <see cref="IAssetService"/> for more information</returns>
         public async Task<IList<Tag>> GetTagsAsync(GetTagsQuery query)
         {
+            var queryToUse = string.IsNullOrEmpty(query.Keyword) ? query : new GetTagsQuerySimple() { 
+                Keyword = query.Keyword, 
+                Limit = query.Limit,
+                OrderBy = query.OrderBy,
+                Page = query.Page
+            };
             return await _requestSender.SendRequestAsync(new ApiRequest<IList<Tag>>
             {
                 Path = "/api/v4/tags/",
                 HTTPMethod = HttpMethod.Get,
-                Query = query
+                Query = queryToUse
             }).ConfigureAwait(false);
         }
 
@@ -261,6 +281,20 @@ namespace Bynder.Sdk.Service.Asset
                 Path = $"/api/v4/tags/{query.TagId}/media/",
                 HTTPMethod = HttpMethod.Post,
                 Query = query,
+            }).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Check <see cref="IAssetService"/> for more information
+        /// </summary>
+        /// <returns>Check <see cref="IAssetService"/> for more information</returns>
+        public async Task<Status> RemoveTagFromMediaAsync(string tagId, IEnumerable<string> assetIds)
+        {
+            var encodedIdList = HttpUtility.UrlEncode(string.Join(",", assetIds));
+            return await _requestSender.SendRequestAsync(new ApiRequest
+            {
+                Path = $"/api/v4/tags/{tagId}/media/?deleteIds={encodedIdList}",
+                HTTPMethod = HttpMethod.Delete,
             }).ConfigureAwait(false);
         }
 
@@ -293,6 +327,49 @@ namespace Bynder.Sdk.Service.Asset
                 Path = $"/api/media/usage/",
                 HTTPMethod = HttpMethod.Delete,
                 Query = query
+            }).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Check <see cref="IAssetService"/> for more information
+        /// </summary>
+        /// <returns>Check <see cref="IAssetService"/> for more information</returns>
+        public async Task<MediaFullResult> GetMediaFullResultAsync(MediaQuery query)
+        {
+            var mediaQueryFull = query is MediaQueryFull ? query as MediaQueryFull : CloneIntoFullMediaQuery(query);
+            return await _requestSender.SendRequestAsync(new ApiRequest<MediaFullResult>
+            {
+                Path = "/api/v4/media/",
+                HTTPMethod = HttpMethod.Get,
+                Query = mediaQueryFull,
+            }).ConfigureAwait(false);
+        }
+
+        private static MediaQueryFull CloneIntoFullMediaQuery(MediaQuery query)
+        {
+            return new MediaQueryFull()
+            {
+                BrandId = query.BrandId,
+                CategoryId = query.CategoryId,  
+                CollectionId = query.CollectionId,
+                Ids = query.Ids,
+                Keyword = query.Keyword,
+                Limit = query.Limit,
+                MetaProperties = query.MetaProperties,
+                Page = query.Page,
+                PropertyOptionId = query.PropertyOptionId,
+                SubBrandId = query.SubBrandId,
+                Types = query.Types,
+                Total = true
+            };
+        }
+
+        public async Task<Status> DeleteAssetAsync(string assetId)
+        {
+            return await _requestSender.SendRequestAsync(new ApiRequest<Status>
+            {
+                Path = "/api/v4/media/" + assetId,
+                HTTPMethod = HttpMethod.Delete,
             }).ConfigureAwait(false);
         }
     }

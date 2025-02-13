@@ -3,12 +3,14 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Bynder.Sdk.Api.Requests;
 using Bynder.Sdk.Api.RequestSender;
 using Bynder.Sdk.Model;
 using Bynder.Sdk.Query.Asset;
+using Bynder.Sdk.Query.Decoder;
 using Bynder.Sdk.Service.Asset;
 using Moq;
 using Xunit;
@@ -145,6 +147,46 @@ namespace Bynder.Test.Service.Asset
         }
 
         [Fact]
+        public async Task GetMediaListWithMetaPropertiesCallsRequestSenderWithValidRequest()
+        {
+            var result = new List<Media>();
+            _apiRequestSenderMock.Setup(sender => sender.SendRequestAsync(It.IsAny<ApiRequest<IList<Media>>>()))
+                .ReturnsAsync(result);
+            var mediaQuery = new MediaQuery() {  
+                MetaProperties = new Dictionary<string, IList<string>> { { "City", new[] { "Amsterdam", "Rotterdam" } } } 
+            };
+            var mediaList = await _assetService.GetMediaListAsync(mediaQuery);
+
+            _apiRequestSenderMock.Verify(sender => sender.SendRequestAsync(
+                It.Is<ApiRequest<IList<Media>>>(
+                    req => req.Path == "/api/v4/media/"
+                    && req.HTTPMethod == HttpMethod.Get
+                    && req.Query == mediaQuery
+                )
+            ));
+
+            Assert.Equal(result, mediaList);
+        }
+
+        [Fact]
+        public async Task GetMediaListWithMetaPropertiesHasCorrectParameters()
+        {
+            var mediaQuery = new MediaQuery()
+            {
+                MetaProperties = new Dictionary<string, IList<string>> { { "City", new[] { "Amsterdam", "Rotterdam" } } }
+            };
+            var mediaList = await _assetService.GetMediaListAsync(mediaQuery);
+
+            QueryDecoder queryDecoder = new QueryDecoder();
+            var parameters = queryDecoder.GetParameters(mediaQuery);
+
+            Assert.True(parameters.ContainsKey("property_City"));
+            Assert.DoesNotContain(".", parameters["property_City"]);
+            Assert.Equal("Rotterdam", parameters["property_City"].Split(',').Last());
+        }
+
+
+        [Fact]
         public async Task GetDownloadFileUrlCallsRequestSenderWithValidRequest()
         {
             var result = new DownloadFileUrl();
@@ -224,6 +266,25 @@ namespace Bynder.Test.Service.Asset
         }
 
         [Fact]
+        public async Task GetTagsByKeywordCallsRequestSenderWithValidRequest()
+        {
+            var result = new Status { Message = "Accepted", StatusCode = 202 };
+            _apiRequestSenderMock.Setup(sender => sender.SendRequestAsync(It.IsAny<ApiRequest>()))
+                .ReturnsAsync(result);
+            var query = new GetTagsQuery { Keyword = "test" };
+            await _assetService.GetTagsAsync(query);
+
+            _apiRequestSenderMock.Verify(sender => sender.SendRequestAsync(
+                It.Is<ApiRequest<IList<Tag>>>(req =>
+                    req.Path == "/api/v4/tags/"
+                    && req.HTTPMethod == HttpMethod.Get
+                    && req.Query is GetTagsQuerySimple
+                    && (req.Query as GetTagsQuerySimple).Keyword == query.Keyword
+                )
+            ));
+        }
+
+        [Fact]
         public async Task AddTagToMediaCallsRequestSenderWithValidRequest()
         {
             var result = new Status { Message = "Accepted", StatusCode = 202 };
@@ -239,6 +300,28 @@ namespace Bynder.Test.Service.Asset
                     && req.Query == query
                 )
             ));
+        }
+
+        [Fact]
+        public async Task GetMediaFullResultAsyncCallsRequestSenderWithValidRequest()
+        {
+            var result = new MediaFullResult() { Media = [ new Media() {  Id = "SomeId", Name = "SomeName"} ] };
+            _apiRequestSenderMock.Setup(sender => sender.SendRequestAsync(It.IsAny<ApiRequest<MediaFullResult>>()))
+                .ReturnsAsync(() =>
+                {
+                    return result;
+                });
+            var mediaQuery = new MediaQuery();
+            var mediaFullResult = await _assetService.GetMediaFullResultAsync(mediaQuery);
+
+            _apiRequestSenderMock.Verify(sender => sender.SendRequestAsync(
+                It.Is<ApiRequest<MediaFullResult>>(
+                    req => req.Path == "/api/v4/media/"
+                    && req.HTTPMethod == HttpMethod.Get
+                    && req.Query is MediaQueryFull
+                )
+            ));
+            Assert.Equal(result, mediaFullResult);
         }
 
         [Fact]
@@ -274,6 +357,24 @@ namespace Bynder.Test.Service.Asset
                     req.Path == $"/api/media/usage/"
                     && req.HTTPMethod == HttpMethod.Delete
                     && req.Query == query
+                )
+            ));
+        }
+
+        [Fact]
+        public async Task DeleteAssetCallsRequestSenderWithValidRequest()
+        {
+            var result = new Status { Message = "Accepted", StatusCode = 204 };
+            _apiRequestSenderMock.Setup(sender => sender.SendRequestAsync(It.IsAny<ApiRequest<Status>>()))
+                .ReturnsAsync(result);
+
+            var assetId = "asset-id";
+            await _assetService.DeleteAssetAsync(assetId);
+
+            _apiRequestSenderMock.Verify(sender => sender.SendRequestAsync(
+                It.Is<ApiRequest<Status>>(req =>
+                    req.Path == $"/api/v4/media/" + assetId
+                    && req.HTTPMethod == HttpMethod.Delete
                 )
             ));
         }
