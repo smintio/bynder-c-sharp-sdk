@@ -26,7 +26,7 @@ namespace Bynder.Sdk.Model
         /// </summary>
         [JsonProperty("property_assettype")]
         [JsonIgnore]
-        // [Obsolete("Use PropertyOptionsDictionary?[\"property_assettype\"] instead")]
+        [Obsolete("Use PropertyOptionsDictionary?[\"property_assettype\"] instead")]
         public IList<string> PropertyAssetType
         {
             get
