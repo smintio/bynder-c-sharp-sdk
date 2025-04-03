@@ -39,6 +39,10 @@ namespace Bynder.Sdk.Api.RequestSender
 
                 if (!string.IsNullOrEmpty(content))
                 {
+                    // dispose the content
+
+                    response.Dispose();
+
                     throw new HttpRequestException($"Request to Bynder failed: {content}, {response.StatusCode}, {response.ReasonPhrase}");
                 }
             }
