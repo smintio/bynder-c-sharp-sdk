@@ -36,6 +36,11 @@ namespace Bynder.Sdk.Api.RequestSender
             if (!response.IsSuccessStatusCode)
             {
                 var content = response.Content.ReadAsStringAsync().Result;
+
+                if (!string.IsNullOrEmpty(content))
+                {
+                    throw new HttpRequestException($"Request to Bynder failed: {content}, {response.StatusCode}, {response.ReasonPhrase}");
+                }
             }
             response.EnsureSuccessStatusCode();
             return response;
