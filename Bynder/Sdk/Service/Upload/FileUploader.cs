@@ -131,7 +131,7 @@ namespace Bynder.Sdk.Service.Upload
                     Buffer.BlockCopy(readBuffer, 0, intermediateBuffer, intermediateBufferIndex, bytesRead);
                     intermediateBufferIndex += bytesRead;
 
-                    var isLastChunk = chunkNumber + 1 < numberOfChunks;
+                    var isLastChunk = chunkNumber + 1 >= numberOfChunks;
                     var expectedChunkSize = (int)(isLastChunk ? lastChunkSize : CHUNK_SIZE);
 
                     while (intermediateBufferIndex >= expectedChunkSize)
@@ -151,7 +151,7 @@ namespace Bynder.Sdk.Service.Upload
                         Buffer.BlockCopy(intermediateBuffer, expectedChunkSize, copyIntermediateBuffer, 0, intermediateBufferIndex);
                         Buffer.BlockCopy(copyIntermediateBuffer, 0, intermediateBuffer, 0, intermediateBufferIndex);
 
-                        isLastChunk = chunkNumber + 1 < numberOfChunks;
+                        isLastChunk = chunkNumber + 1 >= numberOfChunks;
                         expectedChunkSize = (int)(isLastChunk ? lastChunkSize : CHUNK_SIZE);
                     }
                 }
