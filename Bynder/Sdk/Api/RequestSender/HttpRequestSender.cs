@@ -1,7 +1,6 @@
 // Copyright (c) Bynder. All rights reserved.
 // Licensed under the MIT License. See LICENSE file in the project root for full license information.
 
-using System;
 using System.Net.Http;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -36,49 +35,45 @@ namespace Bynder.Sdk.Api.RequestSender
         {
             httpRequest.Headers.Add("User-Agent", UserAgent);
             var response = await _httpClient.SendAsync(httpRequest).ConfigureAwait(false);
-            if (!response.IsSuccessStatusCode)
+            if (response.IsSuccessStatusCode)
             {
-                var content = response.Content.ReadAsStringAsync().Result;
-
-                if (!string.IsNullOrEmpty(content))
-                {
-                    // dispose the content
-
-                    response.Dispose();
-
-                    if (!string.IsNullOrEmpty(content))
-                    {
-                        try
-                        {
-                            var status = JsonConvert.DeserializeObject<Status>(content);
-
-                            var message = status.Message;
-
-                            if (!string.IsNullOrEmpty(message))
-                            {
-                                throw new HttpRequestException($"Error reported by Bynder: {response.StatusCode} - {message}");
-                            }
-                        }
-                        catch (HttpRequestException)
-                        {
-                            throw;
-                        }
-                        catch (Exception)
-                        {
-                            // ignore...
-                        }                        
-                    }
-
-                    if (!string.IsNullOrEmpty(response.ReasonPhrase))
-                    {
-                        throw new HttpRequestException($"Error reported by Bynder: {response.StatusCode} - {response.ReasonPhrase}");
-                    }
-
-                    throw new HttpRequestException($"Error reported by Bynder: {response.StatusCode}");
-                }
+                return response;
             }
-            response.EnsureSuccessStatusCode();
-            return response;
+
+            using (response)
+            {
+                var content = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+
+                var message = GetStatusMessage(content);
+
+                if (string.IsNullOrEmpty(message))
+                {
+                    message = response.ReasonPhrase;
+                }
+
+                var errorMessage = !string.IsNullOrEmpty(message) ? $"Error reported by Bynder: {response.StatusCode} - {message}" : $"Error reported by Bynder: {response.StatusCode}";
+
+                throw new HttpRequestException(errorMessage, null, response.StatusCode);
+            }
+        }
+
+        private static string GetStatusMessage(string content)
+        {
+            if (string.IsNullOrEmpty(content))
+            {
+                return null;
+            }
+
+            try
+            {
+                var status = JsonConvert.DeserializeObject<Status>(content);
+
+                return status?.Message;
+            }
+            catch (JsonException)
+            {
+                return null;
+            }
         }
 
         /// <summary>

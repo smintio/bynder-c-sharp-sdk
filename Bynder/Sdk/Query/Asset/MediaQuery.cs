@@ -2,6 +2,7 @@
 // Licensed under the MIT License. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
+using System.Linq;
 using Bynder.Sdk.Model;
 using Bynder.Sdk.Api.Converters;
 using Bynder.Sdk.Query.Decoder;
@@ -62,22 +63,37 @@ namespace Bynder.Sdk.Query.Asset
         public string Keyword { get; set; }
 
         /// <summary>
-        /// The type of the asset
+        /// The type of the asset. Setting it replaces <see cref="Types"/>.
         /// </summary>
-        [ApiField("type")]
-        public string Types { get; set; }
+        public AssetType? Type
+        {
+            get
+            {
+                return Types != null && Types.Any() ? Types.First() : null;
+            }
+            set
+            {
+                Types = value.HasValue ? new List<AssetType> { value.Value } : null;
+            }
+        }
 
         /// <summary>
-        /// The tags of the asset
+        /// The types of the asset. Will return assets of any of the types.
         /// </summary>
-        [ApiField("tags")]
-        public string Tags { get; set; }
+        [ApiField("type", Converter = typeof(LowerCaseEnumListConverter))]
+        public IList<AssetType> Types { get; set; }
 
         /// <summary>
-        /// The tags of the asset
+        /// Tags that the asset has to have
         /// </summary>
-        [ApiField("orientation")]
-        public string Orientations { get; set; }
+        [ApiField("tags", Converter = typeof(ListConverter))]
+        public IList<string> Tags { get; set; }
+
+        /// <summary>
+        /// Orientations of the asset: landscape, portrait or square
+        /// </summary>
+        [ApiField("orientation", Converter = typeof(ListConverter))]
+        public IList<string> Orientations { get; set; }
 
         /// <summary>
         /// Metaproperty option ids that the asset has to have

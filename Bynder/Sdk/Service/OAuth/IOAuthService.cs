@@ -43,8 +43,10 @@ namespace Bynder.Sdk.Service.OAuth
         Task GetRefreshTokenAsync();
 
         /// <summary>
-        /// Explicitly set access token.
+        /// Explicitly set access token, for integrations that obtain the token themselves.
         /// </summary>
-        void SetAccessToken(string accessToken);
+        /// <param name="accessToken">The access token.</param>
+        /// <param name="expiresIn">Remaining lifetime of the token in seconds, one hour by default.</param>
+        void SetAccessToken(string accessToken, int expiresIn = 3600);
     }
 }

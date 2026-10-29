@@ -58,11 +58,9 @@ namespace Bynder.Sdk.Service.Asset
         /// Check <see cref="IAssetService"/> for more information
         /// </summary>
         /// <returns>Check <see cref="IAssetService"/> for more information</returns>
-        public async Task<IDictionary<string, Metaproperty>> GetMetapropertiesAsync(bool includeOptions)
+        public async Task<IDictionary<string, Metaproperty>> GetMetapropertiesAsync(bool includeOptions = true)
         {
-            var path = includeOptions
-                ? "/api/v4/metaproperties/"
-                : "/api/v4/metaproperties/?options=0";
+            var path = includeOptions ? "/api/v4/metaproperties/" : "/api/v4/metaproperties/?options=0";
 
             return await _requestSender.SendRequestAsync(new ApiRequest<IDictionary<string, Metaproperty>>
             {
@@ -193,8 +191,9 @@ namespace Bynder.Sdk.Service.Asset
         {
             return await _requestSender.SendRequestAsync(new ApiRequest<IList<MetapropertyOption>>
             {
-                Path = $"/api/v4/metaproperties/{query.MetapropertyId}/options/?name={query.Name}&limit={query.Limit}&page={query.Page}",
-                HTTPMethod = HttpMethod.Get
+                Path = $"/api/v4/metaproperties/{query.MetapropertyId}/options/",
+                HTTPMethod = HttpMethod.Get,
+                Query = query
             }).ConfigureAwait(false);
         }
 
@@ -360,6 +359,8 @@ namespace Bynder.Sdk.Service.Asset
                 PropertyOptionId = query.PropertyOptionId,
                 SubBrandId = query.SubBrandId,
                 Types = query.Types,
+                Tags = query.Tags,
+                Orientations = query.Orientations,
                 Total = true
             };
         }

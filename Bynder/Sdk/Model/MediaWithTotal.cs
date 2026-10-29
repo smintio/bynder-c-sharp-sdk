@@ -21,6 +21,6 @@ namespace Bynder.Sdk.Model
         /// Total of results
         /// </summary>
         [JsonProperty("total")]
-        public TotalCountResponse Total { get; set; }
+        public Total Total { get; set; }
     }
 }

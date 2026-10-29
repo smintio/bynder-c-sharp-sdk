@@ -158,9 +158,9 @@ namespace Bynder.Sdk.Service.OAuth
         }
 
         /// <summary>
-        /// Explicitly set access token.
+        /// Check <see cref="IOAuthService"/>.
         /// </summary>
-        public void SetAccessToken(string accessToken)
+        public void SetAccessToken(string accessToken, int expiresIn = 3600)
         {
             if (string.IsNullOrEmpty(accessToken))
             {
@@ -170,7 +170,7 @@ namespace Bynder.Sdk.Service.OAuth
             var token = new Token
             {
                 AccessToken = accessToken,
-                ExpiresIn = 3600
+                ExpiresIn = expiresIn
             };
 
             _credentials.Update(token);

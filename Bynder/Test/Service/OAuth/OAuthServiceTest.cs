@@ -1,4 +1,4 @@
-// Copyright (c) Bynder. All rights reserved.
+﻿// Copyright (c) Bynder. All rights reserved.
 // Licensed under the MIT License. See LICENSE file in the project root for full license information.
 
 using System;
@@ -181,15 +181,37 @@ namespace Bynder.Test.Service.OAuth
         }
 
         [Fact]
+        public void SetAccessTokenWithExpiresIn()
+        {
+            _oauthServiceAuthCode.SetAccessToken(_accessToken, expiresIn: 60);
+
+            _credentialsMock.Verify(credentials => credentials.Update(
+                It.Is<Token>(token => token.AccessToken == _accessToken && token.ExpiresIn == 60)
+            ));
+        }
+
+        [Fact]
+        public void SetAccessTokenWithoutExpiresInLastsOneHour()
+        {
+            _oauthServiceAuthCode.SetAccessToken(_accessToken);
+
+            _credentialsMock.Verify(credentials => credentials.Update(
+                It.Is<Token>(token => token.AccessToken == _accessToken && token.ExpiresIn == 3600)
+            ));
+        }
+
+        [Fact]
         public void SetAccessTokenWithNullValue()
         {
             Assert.Throws<ArgumentNullException>(() => _oauthServiceAuthCode.SetAccessToken(accessToken: null));
+            _credentialsMock.Verify(credentials => credentials.Update(It.IsAny<Token>()), Times.Never);
         }
 
         [Fact]
         public void SetAccessTokenWithEmptyValue()
         {
             Assert.Throws<ArgumentNullException>(() => _oauthServiceAuthCode.SetAccessToken(accessToken: string.Empty));
+            _credentialsMock.Verify(credentials => credentials.Update(It.IsAny<Token>()), Times.Never);
         }
     }
 }

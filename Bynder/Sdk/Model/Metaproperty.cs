@@ -1,4 +1,4 @@
-// Copyright (c) Bynder. All rights reserved.
+﻿// Copyright (c) Bynder. All rights reserved.
 // Licensed under the MIT License. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
@@ -45,7 +45,7 @@ namespace Bynder.Sdk.Model
         /// <summary>
         /// Returns true if Multifilter is selected for the metaproperty
         /// </summary>
-        [JsonProperty("isMultiFilter", ItemConverterType = typeof(BooleanJsonConverter))]
+        [JsonProperty("isMultifilter", ItemConverterType = typeof(BooleanJsonConverter))]
         public bool IsMultiFilter { get; set; }
 
         /// <summary>

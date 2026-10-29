@@ -1,13 +1,18 @@
+// Copyright (c) Bynder. All rights reserved.
+// Licensed under the MIT License. See LICENSE file in the project root for full license information.
+
 using Bynder.Sdk.Query.Decoder;
 
 namespace Bynder.Sdk.Query.Asset
 {
+    /// <summary>
+    /// Query to search the options of a metaproperty
+    /// </summary>
     public class MetapropertyOptionSearchQuery
     {
         /// <summary>
-        /// Id of the media
+        /// Id of the metaproperty
         /// </summary>
-        [ApiField("id")]
         public string MetapropertyId { get; set; }
 
         /// <summary>

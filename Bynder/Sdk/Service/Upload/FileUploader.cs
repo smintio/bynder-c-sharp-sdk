@@ -12,7 +12,6 @@ using Bynder.Sdk.Model;
 using Bynder.Sdk.Query.Upload;
 using System.Linq;
 using System.Web;
-using System;
 
 namespace Bynder.Sdk.Service.Upload
 {
@@ -114,46 +113,13 @@ namespace Bynder.Sdk.Service.Upload
             using (fileStream)
             {
                 int bytesRead = 0;
-                var readBuffer = new byte[CHUNK_SIZE];
-
-                // we can have at least a whole chunk in "overage"
-                int intermediateBufferIndex = 0;
-                var intermediateBuffer = new byte[CHUNK_SIZE * 2];
-                var copyIntermediateBuffer = new byte[CHUNK_SIZE * 2];
-                
+                var buffer = new byte[CHUNK_SIZE];
                 long numberOfChunks = (fileStream.Length + CHUNK_SIZE - 1) / CHUNK_SIZE;
-                long lastChunkSize = fileStream.Length - (numberOfChunks - 1) * CHUNK_SIZE;
 
-                while ((bytesRead = fileStream.Read(readBuffer, 0, readBuffer.Length)) > 0)
+                while ((bytesRead = await fileStream.ReadAtLeastAsync(buffer, buffer.Length, throwOnEndOfStream: false).ConfigureAwait(false)) > 0)
                 {
-                    // bytesRead can be smaller than the buffer size, but we need to make sure we ALWAYS get the correct buffer size!
-
-                    Buffer.BlockCopy(readBuffer, 0, intermediateBuffer, intermediateBufferIndex, bytesRead);
-                    intermediateBufferIndex += bytesRead;
-
-                    var isLastChunk = chunkNumber + 1 >= numberOfChunks;
-                    var expectedChunkSize = (int)(isLastChunk ? lastChunkSize : CHUNK_SIZE);
-
-                    while (intermediateBufferIndex >= expectedChunkSize)
-                    {
-                        // we have a full chunk worth of "stuff"
-
-                        // upload
-
-                        ++chunkNumber;
-                        await UploadPartAsync(Path.GetFileName(query.Filepath), intermediateBuffer, expectedChunkSize, chunkNumber, uploadRequest, (uint)numberOfChunks).ConfigureAwait(false);
-
-                        // remove the chunk from the intermediate buffer
-
-                        intermediateBufferIndex -= expectedChunkSize;
-
-                        // make sure we do not overwrite intermediate buffer content while copying
-                        Buffer.BlockCopy(intermediateBuffer, expectedChunkSize, copyIntermediateBuffer, 0, intermediateBufferIndex);
-                        Buffer.BlockCopy(copyIntermediateBuffer, 0, intermediateBuffer, 0, intermediateBufferIndex);
-
-                        isLastChunk = chunkNumber + 1 >= numberOfChunks;
-                        expectedChunkSize = (int)(isLastChunk ? lastChunkSize : CHUNK_SIZE);
-                    }
+                    ++chunkNumber;
+                    await UploadPartAsync(Path.GetFileName(query.Filepath), buffer, bytesRead, chunkNumber, uploadRequest, (uint)numberOfChunks).ConfigureAwait(false);
                 }
             }
 

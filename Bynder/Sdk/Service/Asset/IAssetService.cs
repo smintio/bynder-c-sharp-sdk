@@ -36,10 +36,10 @@ namespace Bynder.Sdk.Service.Asset
         /// Gets a dictionary of the metaproperties async. The key of the dictionary
         /// returned is the name of the metaproperty.
         /// </summary>
-        /// <param name="query">information whether to include methoproperties options</param>
+        /// <param name="includeOptions">whether the metaproperties include their options</param>
         /// <returns>Task with dictionary of metaproperties</returns>
         /// <exception cref="HttpRequestException">Can be thrown when requests to server can't be completed or HTTP code returned by server is an error</exception>
-        Task<IDictionary<string, Metaproperty>> GetMetapropertiesAsync(bool includeOptions);
+        Task<IDictionary<string, Metaproperty>> GetMetapropertiesAsync(bool includeOptions = true);
 
         /// <summary>
         /// Retrieve specific Metaproperty

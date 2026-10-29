@@ -1,33 +1,38 @@
-using Bynder.Sdk.Api.Converters;
+// Copyright (c) Bynder. All rights reserved.
+// Licensed under the MIT License. See LICENSE file in the project root for full license information.
+
 using Bynder.Sdk.Query.Decoder;
 
 namespace Bynder.Sdk.Query.Asset
 {
+    /// <summary>
+    /// Query to filter media results including the individual counts
+    /// </summary>
     public class MediaWithCountQuery : MediaQuery
     {
         /// <summary>
         /// Indicating whether or not the response should include the total count of results.
         /// </summary>
-        [ApiField("total", Converter = typeof(BoolConverter))]
-        public bool IncludeTotal { get; set; }
+        [ApiField("total")]
+        public bool? IncludeTotal { get; set; }
 
         /// <summary>
         /// Indicating whether or not the response should include the individual count of results.
         /// </summary>
-        [ApiField("count", Converter = typeof(BoolConverter))]
-        public bool IncludeCount { get; set; }
+        [ApiField("count")]
+        public bool? IncludeCount { get; set; }
 
         /// <summary>
         /// Indicating whether or not the response should include media items.
         /// </summary>
-        [ApiField("includeMediaItems", Converter = typeof(BoolConverter))]
-        public bool IncludeMediaItems { get; set; }
+        [ApiField("includeMediaItems")]
+        public bool? IncludeMediaItems { get; set; }
 
         /// <summary>
         /// Indicating whether or not the response should include the version number.
         /// </summary>
-        [ApiField("includeVersionNumber", Converter = typeof(BoolConverter))]
-        public bool IncludeVersionNumber { get; set; }
+        [ApiField("includeVersionNumber")]
+        public bool? IncludeVersionNumber { get; set; }
 
         /// <summary>
         /// <para>Desired order of returned assets.</para>
