@@ -12,6 +12,8 @@ The main goal of this SDK is to speed up the integration of Bynder customers who
 
 You can download and use Bynder SDK from Nuget. https://www.nuget.org/packages/Bynder.Sdk/
 
+> **Breaking change (v4.0.0):** `Bynder.Sdk` now targets `net10.0` only, dropping `net8.0` support. Consumers on `net8.0` should stay on the `3.x` package line.
+
 ## Current status
 
 At the moment this SDK provides a library with the following methods:
@@ -80,7 +82,7 @@ Access code is then provided to terminal prompt to retrieve an access token for 
 
 #### Setting up .NET (dotnet) and building the project
 
-Make sure you have .NET 8.0 set up and installed. If you are developing on a Mac OS, the fastest method is to download the C# Dev Kit in Visual Studio Code and download .NET 8.0 from https://dotnet.microsoft.com/en-us/download/dotnet/8.0.
+Make sure you have .NET 10.0 set up and installed. If you are developing on a Mac OS, the fastest method is to download the C# Dev Kit in Visual Studio Code and download .NET 10.0 from https://dotnet.microsoft.com/en-us/download/dotnet/10.0.
 
 From `Bynder/Sample` directory, the project can be built using command from `Bynder.Sample.csproj`:
 ```bash
@@ -180,3 +182,58 @@ dotnet run -- AssetUsage
 Methods Used:
 * CreateAssetUsage(AssetUsageQuery)
 * DeleteAssetUsage(AssetUsageQuery)
+
+## Running Sample Files Using Docker
+
+If you want to avoid .NET version compatibility issues or simplify the setup process, you can use Docker to run the sample files.
+
+### Prerequisites
+
+- [Docker](https://www.docker.com/get-started) installed on your machine
+- [Docker Compose](https://docs.docker.com/compose/install/) installed on your machine
+
+### Setting up Docker Environment
+
+##### 1. Create a `Config.json` file in the repository root with your Bynder credentials:
+
+```json
+{
+  "base_url": "https://example.bynder.com",
+  "client_id": "your oauth app client id",
+  "client_secret": "your oauth app client secret",
+  "redirect_uri": "your oauth app redirect uri",
+  "scopes": "offline asset:read asset:write collection:read collection:write asset.usage:read asset.usage:write meta.assetbank:read meta.assetbank:write meta.workflow:read"
+}
+```
+
+##### 2. Start the Docker container:
+
+`make run-docker`
+
+##### 3. Run any sample using the make command:
+
+`make executeSdkSample sample-name=BrandsSample`
+
+Available sample names:
+
+* BrandsSample
+* MetapropertiesSample
+* MetapropertyToMediaSample
+* MediaSample
+* FindMediaSample
+* ModifyMediaSample
+* CollectionsSample
+* TagsSample
+* UploadSample
+* AssetUsageSample
+
+##### 4. When you're done, stop the Docker container:
+`make stop-docker`
+
+If you make changes to the code, you can rebuild the project within the container:
+
+`make rebuild-project`
+
+Or rebuild the entire container if needed:
+
+`make rebuild-container`
